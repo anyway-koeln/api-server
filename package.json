@@ -1,0 +1,27 @@
+{
+  "name": "api-server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anyway-koeln/api-server.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anyway-koeln/api-server/issues"
+  },
+  "homepage": "https://github.com/anyway-koeln/api-server#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.4.0"
+  },
+  "devDependencies": {
+    "standard": "^16.0.3"
+  }
+}
