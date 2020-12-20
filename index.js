@@ -7,7 +7,8 @@ const resolvers = require('./resolvers.js')
 const app = express()
 const server = new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
+  tracing: true,
 })
 .applyMiddleware({ app, path: '/graphql', cors: true })
 
