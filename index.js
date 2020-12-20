@@ -1,20 +1,8 @@
 const express = require('express')
-const { ApolloServer, gql } = require('apollo-server-express')
+const ApolloServer = require('apollo-server-express').ApolloServer
 
-const typeDefs = gql`
-  type Query {
-    questions(freitext: String): [String]
-  }
-`
-
-const resolvers = {
-  Query: {
-    questions: (props) => {
-      console.log(props.freitext)
-      return [props.freitext]
-    }
-  }
-}
+const typeDefs = require('./schema.js')
+const resolvers = require('./resolvers.js')
 
 const app = express()
 const server = new ApolloServer({
