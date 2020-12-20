@@ -5,7 +5,7 @@ const typeDefs = require('./schema.js')
 const resolvers = require('./resolvers.js')
 
 const app = express()
-const server = new ApolloServer({
+new ApolloServer({
   typeDefs,
   resolvers,
   tracing: true,
