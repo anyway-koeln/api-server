@@ -21,7 +21,7 @@ const server = new ApolloServer({
   typeDefs,
   resolvers
 })
-.applyMiddleware({ app, path:'/graphql', cors: true })
+.applyMiddleware({ app, path: '/graphql', cors: true })
 
 app.listen({ port: 4000 }, () =>
   console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
