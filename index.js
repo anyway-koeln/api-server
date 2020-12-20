@@ -1,6 +1,8 @@
 const express = require('express')
 const ApolloServer = require('apollo-server-express').ApolloServer
 
+const { getSecret } = require('./secretManager.js')
+
 const typeDefs = require('./schema.js')
 const resolvers = require('./resolvers.js')
 
@@ -9,6 +11,11 @@ new ApolloServer({
   typeDefs,
   resolvers,
   tracing: true,
+  context: async ({req}) => {
+    return {
+      getSecret
+    }
+  },
 })
 .applyMiddleware({ app, path: '/graphql', cors: true })
 
