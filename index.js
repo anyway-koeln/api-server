@@ -1,28 +1,19 @@
 const express = require('express')
-const { ApolloServer, gql } = require('apollo-server-express')
+const ApolloServer = require('apollo-server-express').ApolloServer
 
-const typeDefs = gql`
-  type Query {
-    questions(freitext: String): [String]
-  }
-`
-
-const resolvers = {
-  Query: {
-    questions: (props) => {
-      console.log(props.freitext)
-      return [props.freitext]
-    }
-  }
-}
+const typeDefs = require('./schema.js')
+const resolvers = require('./resolvers.js')
 
 const app = express()
-const server = new ApolloServer({
+new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
+  tracing: true,
 })
 .applyMiddleware({ app, path: '/graphql', cors: true })
 
-app.listen({ port: 4000 }, () =>
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+const port = 4000
+const host = '0.0.0.0' // Uberspace wants 0.0.0.0
+app.listen({ port, host }, () =>
+  console.info(`🚀 Server ready at http://${host}:${port}/graphql`)
 )
