@@ -1,5 +1,5 @@
 const env = require('node-env-file')
-env(`${__dirname}/.env`)
+env(`${__dirname}/../.env`)
 
 // TODO: Look into "rotating secrets".
 
