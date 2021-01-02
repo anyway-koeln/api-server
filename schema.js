@@ -39,6 +39,7 @@ const schema = gql`
 	enum AnswerType {
 		text
 		address
+		number
 	}
 `
 
