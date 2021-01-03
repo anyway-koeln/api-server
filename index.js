@@ -9,8 +9,6 @@ const resolvers = require('./src/resolvers.js')
 
 const incidentStore = new GitStore('incident')
 
-getSecret('sdfsdf')
-
 const app = express()
 new ApolloServer({
   typeDefs,

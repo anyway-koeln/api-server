@@ -1,7 +1,5 @@
 module.exports = async (parent, args, context, info) => {
-	
-	console.log('test-secret:', await context.getSecret('test') )
-
+	return await context.incidentStore.publish({ text: args.text })
 	// args.text
 
 	// git clone -b TEMPLATE https://github.com/thomasrosen/empty.git;
@@ -14,7 +12,8 @@ module.exports = async (parent, args, context, info) => {
 	// cd ../../;
 	// rm -Rf empty
 
-	return new Promise((resolve,reject)=>{
-		resolve(null)
-	})
+	// return new Promise((resolve,reject)=>{
+
+	// 	resolve(null)
+	// })
 }
