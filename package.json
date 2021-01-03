@@ -24,7 +24,8 @@
     "graphql-iso-date": "^3.6.1",
     "graphql-type-json": "^0.3.2",
     "node-env-file": "^0.1.8",
-    "nodegit": "^0.27.0"
+    "nodegit": "^0.27.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "standard": "^16.0.3"
