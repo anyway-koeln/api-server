@@ -2,20 +2,22 @@ const events = require('events')
 const path = require('path')
 const fse = require('fs-extra')
 const Git = require('nodegit')
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid')
 const { getSecret } = require('../secretManager')
 
 const GIT_DB_DIR = path.join(process.cwd(), 'gitdb')
 
 class GitHubStore extends events.EventEmitter {
-  constructor (name) {
+  constructor (name, opts) {
     super()
+    opts = opts || {}
     this._ready = new Promise((resolve, reject) => {
       this.on('ready', () => {
         resolve()
       })
     })
     this.name = name
+    this.pullRequestBased = opts.pullRequestBased || false
     this._initialize()
   }
 
@@ -39,18 +41,16 @@ class GitHubStore extends events.EventEmitter {
     )
 
     const tempRepositoryDataDirPath = path.join(tempRepositoryPath, 'data')
-    const tempRepositoryDataEntryDirPath = path.join(tempRepositoryDataDirPath, newDataUUID)
-    await fse.ensureDir(tempRepositoryDataEntryDirPath)
 
     const repositoryHeadCommit = await repository.getHeadCommit()
     const newBranch = await repository.createBranch(newDataUUID, repositoryHeadCommit, false)
     await repository.checkoutBranch(newBranch)
 
-    const dataFilePath = path.join(tempRepositoryDataEntryDirPath, 'data.json')
+    const dataFilePath = path.join(tempRepositoryDataDirPath, `${newDataUUID}.json`)
     await fse.writeJSON(dataFilePath, data)
 
     const index = await repository.refreshIndex()
-    await index.addByPath(path.posix.join('data', newDataUUID, 'data.json'))
+    await index.addByPath(path.posix.join('data', `${newDataUUID}.json`))
     await index.write()
 
     const oid = await index.writeTree()
@@ -69,6 +69,10 @@ class GitHubStore extends events.EventEmitter {
       [`refs/heads/${newDataUUID}:refs/heads/${newDataUUID}`],
       this._defaultPushOpts
     )
+
+    if (this.pullRequestBased) {
+      // TODO
+    }
 
     return newDataUUID
   }
