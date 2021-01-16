@@ -39,18 +39,16 @@ class GitHubStore extends events.EventEmitter {
     )
 
     const tempRepositoryDataDirPath = path.join(tempRepositoryPath, 'data')
-    const tempRepositoryDataEntryDirPath = path.join(tempRepositoryDataDirPath, newDataUUID)
-    await fse.ensureDir(tempRepositoryDataEntryDirPath)
 
     const repositoryHeadCommit = await repository.getHeadCommit()
     const newBranch = await repository.createBranch(newDataUUID, repositoryHeadCommit, false)
     await repository.checkoutBranch(newBranch)
 
-    const dataFilePath = path.join(tempRepositoryDataEntryDirPath, 'data.json')
+    const dataFilePath = path.join(tempRepositoryDataDirPath, `${newDataUUID}.json`)
     await fse.writeJSON(dataFilePath, data)
 
     const index = await repository.refreshIndex()
-    await index.addByPath(path.posix.join('data', newDataUUID, 'data.json'))
+    await index.addByPath(path.posix.join('data', `${newDataUUID}.json`))
     await index.write()
 
     const oid = await index.writeTree()
