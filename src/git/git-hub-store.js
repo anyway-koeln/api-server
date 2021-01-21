@@ -37,7 +37,6 @@ class GitHubStore extends events.EventEmitter {
 
       const repositoryDataDirPath = path.join(this.directories.root, 'data')
 
-      await this.mainRegistry.checkoutBranch('origin/template')
       const templateBranch = await this.mainRegistry.getBranch('refs/remotes/origin/template')
       await this.mainRegistry.checkoutRef(templateBranch)
       const repositoryHeadCommit = await this.mainRegistry.getHeadCommit()
@@ -99,11 +98,17 @@ class GitHubStore extends events.EventEmitter {
   }
 
   async createInitialDataStream () {
+    const release = await this.pushMutex.acquire()
+
+    const dataBranch = await this.mainRegistry.getBranch('refs/remotes/origin/data')
+    await this.mainRegistry.checkoutRef(dataBranch)
+
     const files = await fse.readdir(path.join(this.directories.root, 'data'))
     const jsonFiles = files.filter(el => /\.json$/.test(el))
     const readableStream = new Stream.Readable()
     jsonFiles.forEach(file => readableStream.push(fse.readFileSync(path.join(this.directories.root, 'data', file))))
     readableStream.push(null)
+    release()
     return readableStream
   }
 
