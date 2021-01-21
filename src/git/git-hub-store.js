@@ -4,6 +4,7 @@ const fse = require('fs-extra')
 const Git = require('nodegit')
 const { v4: uuidv4 } = require('uuid')
 const { getSecret } = require('../secretManager')
+const Stream = require('stream')
 const Mutex = require('async-mutex').Mutex
 
 const GIT_DB_DIR = path.join(process.cwd(), 'gitdb')
@@ -97,9 +98,14 @@ class GitHubStore extends events.EventEmitter {
     await fse.emptyDir(this.directories.root)
   }
 
-  // async getInitialDataStream () {
-  //   const files = await fse.readdir()
-  // }
+  async createInitialDataStream () {
+    const files = await fse.readdir(path.join(this.directories.root, 'data'))
+    const jsonFiles = files.filter(el => /\.json$/.test(el))
+    const readableStream = new Stream.Readable()
+    jsonFiles.forEach(file => readableStream.push(fse.readFileSync(path.join(this.directories.root, 'data', file))))
+    readableStream.push(null)
+    return readableStream
+  }
 
   get _defaultCloneOpts () {
     const self = this
