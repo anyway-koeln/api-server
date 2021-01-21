@@ -4,6 +4,7 @@ const fse = require('fs-extra')
 const Git = require('nodegit')
 const { v4: uuidv4 } = require('uuid')
 const { getSecret } = require('../secretManager')
+const Mutex = require('async-mutex').Mutex
 
 const GIT_DB_DIR = path.join(process.cwd(), 'gitdb')
 
@@ -18,6 +19,7 @@ class GitHubStore extends events.EventEmitter {
     })
     this.name = name
     this.pullRequestBased = opts.pullRequestBased || false
+    this.pushMutex = new Mutex()
     this._initialize()
   }
 
@@ -25,56 +27,53 @@ class GitHubStore extends events.EventEmitter {
     await this._ready
   }
 
-  async publish (data) {
+  async push (data) {
     await this.ready()
 
-    const cloneOpts = this._defaultCloneOpts
-    cloneOpts.checkoutBranch = 'template'
+    const release = await this.pushMutex.acquire()
+    try {
+      const newDataUUID = uuidv4()
 
-    const newDataUUID = uuidv4()
-    const tempRepositoryPath = path.join(this.directories.push, newDataUUID)
+      const repositoryDataDirPath = path.join(this.directories.root, 'data')
 
-    const repository = await Git.Clone(
-      this.url,
-      tempRepositoryPath,
-      cloneOpts
-    )
+      await this.mainRegistry.checkoutBranch('origin/template')
+      const templateBranch = await this.mainRegistry.getBranch('refs/remotes/origin/template')
+      await this.mainRegistry.checkoutRef(templateBranch)
+      const repositoryHeadCommit = await this.mainRegistry.getHeadCommit()
+      const newBranch = await this.mainRegistry.createBranch(newDataUUID, repositoryHeadCommit, false)
+      await this.mainRegistry.checkoutBranch(newBranch)
 
-    const tempRepositoryDataDirPath = path.join(tempRepositoryPath, 'data')
+      const dataFilePath = path.join(repositoryDataDirPath, `${newDataUUID}.json`)
+      await fse.writeJSON(dataFilePath, data)
 
-    const repositoryHeadCommit = await repository.getHeadCommit()
-    const newBranch = await repository.createBranch(newDataUUID, repositoryHeadCommit, false)
-    await repository.checkoutBranch(newBranch)
+      const index = await this.mainRegistry.refreshIndex()
+      await index.addByPath(path.posix.join('data', `${newDataUUID}.json`))
+      await index.write()
 
-    const dataFilePath = path.join(tempRepositoryDataDirPath, `${newDataUUID}.json`)
-    await fse.writeJSON(dataFilePath, data)
+      const oid = await index.writeTree()
 
-    const index = await repository.refreshIndex()
-    await index.addByPath(path.posix.join('data', `${newDataUUID}.json`))
-    await index.write()
+      await this.mainRegistry.createCommit(
+        'HEAD',
+        Git.Signature.now('DataBot', 'none@bot.com'),
+        Git.Signature.now('DataBot', 'none@bot.com'),
+        `publish/${newDataUUID}`,
+        oid,
+        [repositoryHeadCommit]
+      )
 
-    const oid = await index.writeTree()
+      const remote = await this.mainRegistry.getRemote('origin')
+      await remote.push(
+        [`refs/heads/${newDataUUID}:refs/heads/${newDataUUID}`],
+        this._defaultPushOpts
+      )
 
-    await repository.createCommit(
-      'HEAD',
-      Git.Signature.now('DataBot', 'none@bot.com'),
-      Git.Signature.now('DataBot', 'none@bot.com'),
-      `publish/${newDataUUID}`,
-      oid,
-      [repositoryHeadCommit]
-    )
-
-    const remote = await repository.getRemote('origin')
-    await remote.push(
-      [`refs/heads/${newDataUUID}:refs/heads/${newDataUUID}`],
-      this._defaultPushOpts
-    )
-
-    if (this.pullRequestBased) {
-      // TODO
+      if (this.pullRequestBased) {
+        // TODO
+      }
+      return newDataUUID
+    } finally {
+      release()
     }
-
-    return newDataUUID
   }
 
   async _initialize () {
@@ -84,7 +83,7 @@ class GitHubStore extends events.EventEmitter {
     const cloneOpts = this._defaultCloneOpts
     cloneOpts.checkoutBranch = 'data'
     try {
-      this.mainRegistry = await Git.Clone(this.url, this.directories.main, cloneOpts)
+      this.mainRegistry = await Git.Clone(this.url, this.directories.root, cloneOpts)
     } catch (error) {
       throw new Error('Error during main repository cloning: ' + error)
     }
@@ -95,12 +94,12 @@ class GitHubStore extends events.EventEmitter {
     await fse.ensureDir(GIT_DB_DIR)
     this.directories = {}
     this.directories.root = path.join(GIT_DB_DIR, this.name)
-    await fse.ensureDir(this.directories.root)
-    this.directories.main = path.join(this.directories.root, 'main')
-    await fse.emptyDir(this.directories.main)
-    this.directories.push = path.join(this.directories.root, 'push')
-    await fse.emptyDir(this.directories.push)
+    await fse.emptyDir(this.directories.root)
   }
+
+  // async getInitialDataStream () {
+  //   const files = await fse.readdir()
+  // }
 
   get _defaultCloneOpts () {
     const self = this

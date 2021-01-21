@@ -1,5 +1,5 @@
 module.exports = async (parent, args, context, info) => {
-	return await context.incidentStore.publish({ text: args.text })
+	return await context.incidentStore.push({ text: args.text })
 	// args.text
 
 	// git clone -b TEMPLATE https://github.com/thomasrosen/empty.git;
