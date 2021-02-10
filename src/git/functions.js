@@ -89,7 +89,53 @@ function commit({ owner, repo, file_extension, file_content }) {
     })
 }
 
+function load_data_tree({owner, repo}) {
+    return new Promise(async (resolve, reject) => {
+        if (!(!!owner)) {
+            reject(new Error('Please provide an owner.'))
+        }
+        if (!(!!repo)) {
+            reject(new Error('Please provide a repo.'))
+        }
+
+        const octokit = new Octokit({ auth: await getSecret('token') })
+
+        octokit.request('GET /repos/{owner}/{repo}/contents/{path}?ref={ref}', {
+            owner,
+            repo,
+            path: '',
+            ref: 'data',
+        })
+        .then(data_branch_tree_response => {
+            const files = data_branch_tree_response.data
+            .filter(file => file.path === 'data')
+            .map(file => file.sha)
+
+            const data_tree_sha = files[0]
+
+            if (!(!!data_tree_sha)) {
+                reject(new Error('Could not get data-tree sha.'))
+            } else {
+                octokit.request('GET /repos/{owner}/{repo}/git/trees/{tree_sha}', {
+                    owner,
+                    repo,
+                    tree_sha: data_tree_sha,
+                })
+                .then(data_tree_response => {
+                    resolve(
+                        data_tree_response.data.tree
+                        .filter(file => file.path !== '.gitkeep')
+                    )
+                })
+                .catch(reject)
+            }
+        })
+        .catch(reject)
+    })
+}
+
 module.exports = {
     create_branch_from_template,
     commit,
+    load_data_tree,
 }

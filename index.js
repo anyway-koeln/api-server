@@ -7,6 +7,8 @@ const GitStore = require('./src/git/git-hub-store')
 const typeDefs = require('./src/schema.js')
 const resolvers = require('./src/resolvers.js')
 
+const update_indexes = require('./src/git/update_indexes.js')
+
 const incidentStore = new GitStore('incident')
 
 const app = express()
@@ -22,8 +24,18 @@ new ApolloServer({
   }
 }).applyMiddleware({ app, path: '/graphql', cors: true })
 
+app.get('/self_update', (req, res) => {
+    update_indexes()
+    .then(() => res.send('updated'))
+    .catch(err => res.send('error'))
+})
+
 const port = 4000
 const host = '0.0.0.0' // Uberspace wants 0.0.0.0
 app.listen({ port, host }, () =>
-  console.info(`🚀 Server ready at http://${host}:${port}/graphql`)
+  console.info(`
+    🚀 Server ready
+    View the API at http://${host}:${port}/graphql
+    Call the self update script at http://${host}:${port}/self_update
+  `)
 )
