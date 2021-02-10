@@ -37,25 +37,29 @@ app.get('/', (req, res) => {
 })
 
 app.get('/self_update', (req, res) => {
-    console.log('GET')
-    console.log(req.query)
-
-    res.send('-')
-
-    // update_indexes()
-    // .then(() => res.send('updated'))
-    // .catch(err => res.send('error'))
+    res.send('Please use POST.')
 })
 
 app.post('/self_update', (req, res) => {
-    console.log('POST')
-    console.log(req.body)
-    
-    res.send('-')
+    const payload = req.body
 
-    // update_indexes()
-    // .then(() => res.send('updated'))
-    // .catch(err => res.send('error'))
+    if (
+        payload.action === 'closed'
+        && payload.pull_request.state === 'closed'
+        && payload.pull_request.merged === true
+    ) {
+        // Update Indexes
+        update_indexes()
+        .then(() => res.send('updated'))
+        .catch(error => res.send('error'))
+    } else if (
+        payload.action === 'opened'
+        && payload.pull_request.state === 'open'
+        && payload.pull_request.merged === false
+    ) {
+        res.send('opened')
+        // TODO send info about new data to review
+    }
 })
 
 const port = 4000
