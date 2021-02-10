@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/self_update', (req, res) => {
-    console.log(JSON.stringify(req, null, 4))
+    console.log(req.query)
     
     res.send('-')
 
