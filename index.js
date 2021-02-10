@@ -37,8 +37,8 @@ app.get('/', (req, res) => {
 })
 
 app.get('/self_update', (req, res) => {
+    console.log('GET')
     console.log(req.query)
-    console.log(req.body)
 
     res.send('-')
 
@@ -48,7 +48,7 @@ app.get('/self_update', (req, res) => {
 })
 
 app.post('/self_update', (req, res) => {
-    console.log(req.query)
+    console.log('POST')
     console.log(req.body)
     
     res.send('-')
