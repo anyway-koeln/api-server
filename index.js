@@ -12,6 +12,8 @@ const update_indexes = require('./src/git/update_indexes.js')
 // const incidentStore = new GitStore('incident')
 
 const app = express()
+app.use(express.json())
+
 new ApolloServer({
   typeDefs,
   resolvers,
@@ -27,15 +29,16 @@ new ApolloServer({
 app.get('/', (req, res) => {
     res.send(`
         <title>anyway API</title>
-        View the API at ./graphql<br>
-        Call the self update script at ./self_update<br>
+        View the API at <a href="./graphql">./graphql</a><br>
+        Call the self update script with POST at ./self_update<br>
         <hr>
         Repo: <a href="https://github.com/anyway-koeln/api-server">https://github.com/anyway-koeln/api-server</a>
     `)
 })
 
-app.get('/self_update', (req, res) => {
+app.post('/self_update', (req, res) => {
     console.log(req.query)
+    console.log(req.body)
     
     res.send('-')
 
