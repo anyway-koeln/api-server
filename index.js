@@ -37,14 +37,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/self_update', (req, res) => {
-    console.log('GET')
-    console.log(req.query)
-
-    res.send('-')
-
-    // update_indexes()
-    // .then(() => res.send('updated'))
-    // .catch(err => res.send('error'))
+    res.send('Please use POST.')
 })
 
 app.post('/self_update', (req, res) => {
