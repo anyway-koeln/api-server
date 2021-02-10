@@ -1,3 +1,26 @@
+const { getSecret } = require('../secretManager.js')
+const { commit } = require('../git/functions.js')
+
+module.exports = (parent, args, context, info) => {
+    const text = args.text
+
+    return new Promise(async (resolve,reject)=>{
+        if (text === '') {
+            reject('No text.')
+        }else{
+            commit({
+                owner: await getSecret('owner'),
+                repo: await getSecret('incident_repo'),
+                file_extension: 'json',
+                file_content: JSON.stringify({text}),
+            })
+            .then(resolve)
+            .catch(reject)
+        }
+	})
+}
+
+/*
 module.exports = async (parent, args, context, info) => {
 	return await context.incidentStore.push({ text: args.text })
 	// args.text
@@ -17,3 +40,4 @@ module.exports = async (parent, args, context, info) => {
 	// 	resolve(null)
 	// })
 }
+*/
