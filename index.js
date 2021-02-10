@@ -23,7 +23,7 @@ new ApolloServer({
 }).applyMiddleware({ app, path: '/graphql', cors: true })
 
 const port = 4000
-const host = 'localhost' // Uberspace wants 0.0.0.0
+const host = '0.0.0.0' // Uberspace wants 0.0.0.0
 app.listen({ port, host }, () =>
   console.info(`🚀 Server ready at http://${host}:${port}/graphql`)
 )
