@@ -24,6 +24,15 @@ new ApolloServer({
   }
 }).applyMiddleware({ app, path: '/graphql', cors: true })
 
+app.get('/', (req, res) => {
+    res.send(`
+        View the API at ./graphql<br>
+        Call the self update script at ./self_update<br>
+        <hr>
+        Repo: <a href="https://github.com/anyway-koeln/api-server">https://github.com/anyway-koeln/api-server</a>
+    `)
+})
+
 app.get('/self_update', (req, res) => {
     update_indexes()
     .then(() => res.send('updated'))
