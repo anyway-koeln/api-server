@@ -42,7 +42,6 @@ app.get('/self_update', (req, res) => {
 
 app.post('/self_update', (req, res) => {
     const payload = req.body
-    console.log(payload)
 
     if (
         payload.action === 'closed'
