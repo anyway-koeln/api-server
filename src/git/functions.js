@@ -16,35 +16,38 @@ function create_branch_from_template(owner, repo) {
         const newDataID = uuidv4()
         const new_branch_name = `data-${newDataID}`
 
-        const template_branch_infos = await octokit.request('GET /repos/{owner}/{repo}/branches/{branch}', {
+        octokit.request('GET /repos/{owner}/{repo}/branches/{branch}', {
             owner,
             repo,
             branch: 'template',
         })
-        const template_branch_sha = template_branch_infos.data.commit.sha
-
-        octokit.request('POST /repos/{owner}/{repo}/git/refs', {
-            owner,
-            repo,
-            ref: `refs/heads/${new_branch_name}`,
-            sha: template_branch_sha,
-        })
-        .then(response => {
-            resolve({
-                id: newDataID,
-                name: new_branch_name,
+        .then(template_branch_infos => {
+            const template_branch_sha = template_branch_infos.data.commit.sha
+            
+            octokit.request('POST /repos/{owner}/{repo}/git/refs', {
+                owner,
+                repo,
+                ref: `refs/heads/${new_branch_name}`,
+                sha: template_branch_sha,
+            })
+            .then(response => {
+                resolve({
+                    id: newDataID,
+                    name: new_branch_name,
+                })
+            })
+            .catch(error => {
+                console.log('error', error)
+                // if (error.status === 422) { // HttpError: Reference already exists
+                //     create_branch_from_template(owner, repo)
+                //     .then(resolve)
+                //     .catch(reject)
+                // } else {
+                    reject(error)
+                // }
             })
         })
-        .catch(error => {
-            console.log('error', error)
-            // if (error.status === 422) { // HttpError: Reference already exists
-            //     create_branch_from_template(owner, repo)
-            //     .then(resolve)
-            //     .catch(reject)
-            // } else {
-                reject(error)
-            // }
-        })
+        .catch(reject)
     })
 }
 

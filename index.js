@@ -26,6 +26,7 @@ new ApolloServer({
 
 app.get('/', (req, res) => {
     res.send(`
+        <title>anyway API</title>
         View the API at ./graphql<br>
         Call the self update script at ./self_update<br>
         <hr>
