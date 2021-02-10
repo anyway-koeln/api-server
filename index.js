@@ -2,14 +2,14 @@ const express = require('express')
 const ApolloServer = require('apollo-server-express').ApolloServer
 
 const { getSecret } = require('./src/secretManager.js')
-const GitStore = require('./src/git/git-hub-store')
+// const GitStore = require('./src/git/git-hub-store')
 
 const typeDefs = require('./src/schema.js')
 const resolvers = require('./src/resolvers.js')
 
 const update_indexes = require('./src/git/update_indexes.js')
 
-const incidentStore = new GitStore('incident')
+// const incidentStore = new GitStore('incident')
 
 const app = express()
 new ApolloServer({
@@ -19,7 +19,7 @@ new ApolloServer({
   context: async ({ req }) => {
     return {
       getSecret,
-      incidentStore
+    //   incidentStore
     }
   }
 }).applyMiddleware({ app, path: '/graphql', cors: true })

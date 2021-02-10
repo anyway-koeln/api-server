@@ -29,7 +29,6 @@ jobs:
           command: |
             cd ~/api-server/ && git pull && yarn;
             supervisorctl restart api;
-            exit;
           host: bergelmir.uberspace.de
           username: anyway
           password: ${{ secrets.UBERSPACE_ANYWAY_PASSWORD }}
