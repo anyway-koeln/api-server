@@ -34,9 +34,13 @@ app.get('/', (req, res) => {
 })
 
 app.get('/self_update', (req, res) => {
-    update_indexes()
-    .then(() => res.send('updated'))
-    .catch(err => res.send('error'))
+    console.log(JSON.stringify(req, null, 4))
+    
+    res.send('-')
+
+    // update_indexes()
+    // .then(() => res.send('updated'))
+    // .catch(err => res.send('error'))
 })
 
 const port = 4000
