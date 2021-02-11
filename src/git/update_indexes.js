@@ -4,17 +4,27 @@ const { load_data_tree } = require('./functions.js')
 const async = require('async')
 const matter = require('gray-matter')
 const { MongoClient } = require("mongodb")
+const path = require('path')
 
+function getFileBasename(git_path){
+    // Path way:
+    return path.basename(git_path, path.extname(git_path))
+
+    // RegExp way:
+    // const match = git_path.match(/(?:.*\/|^)(.*)\..*?$/)
+    // return match[1] || null
+}
 
 function annotate_file(file, callback) {
+    file.basename = getFileBasename(file.path) // don't use the automatic mongoDB id but what we generated for git
+
     if (file.path.endsWith('.md')) {
         const data = matter(file.content_raw)
         file.content_markdown = data.content
         file.content_attributes = data.data
-        callback(file)
-    } else {
-        callback(null)
     }
+
+    callback(file)
 }
 
 async function load_content(owner, repo, file_sha) {
@@ -74,27 +84,34 @@ function self_update () {
             .then(tree => {
 
                 load_existing_path_sha_pairs()
-                .then(sha_to_path_mapping => {
+                .then(async sha_to_path_mapping => {
                     console.log(sha_to_path_mapping)
 
-                    tree = tree
-                    .filter(file =>
-                        file.path.endsWith('.md') // only look at markdown files
-                        && (
-                            !(!!sha_to_path_mapping[file.path]) // file should not exists
-                            || sha_to_path_mapping[file.path] !== file.sha // or should have different content
-                        )
-                    )
+                    const markdown_files = tree.filter(file => file.path.endsWith('.md')) // only look at markdown files
 
-                    async.each(tree, (file, callback) => {
+                    // delete all docs from db, that are not in 
+                    const paths = markdown_files.map(file => file.path)
+                    const paths_to_delete_from_db = Object.keys(sha_to_path_mapping)
+                    .filter(path => !paths.includes(path))
+                    for (const path of paths_to_delete_from_db) {
+                        await collection.deleteOne({ path })
+                    }
+
+                    const markdown_files_with_changes = markdown_files
+                    .filter(file =>
+                        !(!!sha_to_path_mapping[file.path]) // file should not exists
+                        || sha_to_path_mapping[file.path] !== file.sha // or should have different content
+                    )
+                    
+                    async.each(markdown_files_with_changes, (file, callback) => {
                         load_content(owner, repo, file.sha)
                         .then(response => {
                             annotate_file({
                                 path: file.path,
                                 sha: file.sha,
-                                mode: file.mode,
-                                type: file.type,
-                                size: file.size,
+                                // mode: file.mode,
+                                // type: file.type,
+                                // size: file.size,
                                 content_raw: Buffer.from(response.data.content, 'base64').toString('utf-8'),
                             }, async file => {
                                 if (!(!!sha_to_path_mapping[file.path])) { // insert new db entry
