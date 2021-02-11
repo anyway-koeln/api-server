@@ -109,9 +109,9 @@ function self_update () {
                             annotate_file({
                                 path: file.path,
                                 sha: file.sha,
-                                mode: file.mode,
-                                type: file.type,
-                                size: file.size,
+                                // mode: file.mode,
+                                // type: file.type,
+                                // size: file.size,
                                 content_raw: Buffer.from(response.data.content, 'base64').toString('utf-8'),
                             }, async file => {
                                 if (!(!!sha_to_path_mapping[file.path])) { // insert new db entry
