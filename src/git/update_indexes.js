@@ -5,10 +5,7 @@ const async = require('async')
 const matter = require('gray-matter')
 
 function annotate_file(file, callback) {
-    if (file.path.endsWith('.json')) {
-        file.content_json = JSON.parse(file.content_raw) || null
-        callback(file)
-    } else if (file.path.endsWith('.md')) {
+    if (file.path.endsWith('.md')) {
         const data = matter(file.content_raw)
         file.content_markdown = data.content
         file.content_attributes = data.data
