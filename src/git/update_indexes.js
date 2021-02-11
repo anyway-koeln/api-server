@@ -22,10 +22,9 @@ function annotate_file(file, callback) {
         const data = matter(file.content_raw)
         file.content_markdown = data.content
         file.content_attributes = data.data
-        callback(file)
-    } else {
-        callback(null)
     }
+
+    callback(file)
 }
 
 async function load_content(owner, repo, file_sha) {
