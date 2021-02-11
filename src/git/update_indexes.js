@@ -55,18 +55,21 @@ function self_update () {
 
         load_data_tree({ owner, repo })
         .then(tree => {
-            async.each([tree[0]], (file, callback) => {
-                add_to_db(owner, repo, file, callback)
-            }, error => {
-                if (error) {
-                    console.log('A file failed to process')
-                } else {
-                    console.log('All files have been processed successfully')
-                }
+            async.each(
+                tree.filter(file => file.path.endsWith('.md')),
+                (file, callback) => {
+                    add_to_db(owner, repo, file, callback)
+                }, error => {
+                    if (error) {
+                        console.log('A file failed to process')
+                    } else {
+                        console.log('All files have been processed successfully')
+                    }
 
-                resolve(true)
-            })
-        })
+                    resolve(true)
+                }
+            )
+        }) 
         .catch(reject)
     })
 }
