@@ -1,5 +1,6 @@
 const { getSecret } = require('../secretManager.js')
 const { commit } = require('../git/functions.js')
+const matter = require('gray-matter')
 
 module.exports = (parent, args, context, info) => {
     const text = args.text
@@ -14,13 +15,9 @@ module.exports = (parent, args, context, info) => {
                 // file_extension: 'json',
                 // file_content: JSON.stringify({ text }),
                 file_extension: 'md',
-                file_content:
-`
----
-hello: World!
----
-${text}
-`,
+                file_content: matter.stringify(text, {
+                    date_added: new Date().toISOString(),
+                }),
             })
             .then(resolve)
             .catch(reject)

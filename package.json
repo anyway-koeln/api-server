@@ -27,6 +27,7 @@
     "graphql": "^15.4.0",
     "graphql-iso-date": "^3.6.1",
     "graphql-type-json": "^0.3.2",
+    "gray-matter": "^4.0.2",
     "node-env-file": "^0.1.8",
     "uuid": "^8.3.2"
   },
