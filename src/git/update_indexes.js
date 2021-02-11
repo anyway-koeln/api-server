@@ -4,9 +4,20 @@ const { load_data_tree } = require('./functions.js')
 const async = require('async')
 const matter = require('gray-matter')
 const { MongoClient } = require("mongodb")
+const path = require('path')
 
+function getFileBasename(git_path){
+    // Path way:
+    return path.basename(git_path, path.extname(git_path))
+
+    // RegExp way:
+    // const match = git_path.match(/(?:.*\/|^)(.*)\..*?$/)
+    // return match[1] || null
+}
 
 function annotate_file(file, callback) {
+    file.basename = getFileBasename(file.path) // don't use the automatic mongoDB id but what we generated for git
+
     if (file.path.endsWith('.md')) {
         const data = matter(file.content_raw)
         file.content_markdown = data.content
