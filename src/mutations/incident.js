@@ -14,8 +14,7 @@ module.exports = (parent, args, context, info) => {
                 // file_extension: 'json',
                 // file_content: JSON.stringify({ text }),
                 file_extension: 'md',
-                file_content:
-`
+                file_content:`
 ---
 hello: World!
 ---
