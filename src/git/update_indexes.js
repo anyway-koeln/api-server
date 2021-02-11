@@ -38,7 +38,7 @@ function add_to_db(owner, repo, file, callback) {
                 size: file.size,
                 content_raw: Buffer.from(response.data.content, 'base64').toString('utf-8'),
             }, file => {
-                console.log('file', file)
+                console.log('add to db', file)
                 callback()
             })
         })
