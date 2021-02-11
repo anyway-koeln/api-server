@@ -65,7 +65,6 @@ function self_update () {
                     } else {
                         console.log('All files have been processed successfully')
                     }
-
                     resolve(true)
                 }
             )
