@@ -11,8 +11,16 @@ module.exports = (parent, args, context, info) => {
             commit({
                 owner: await getSecret('owner'),
                 repo: await getSecret('incident_repo'),
-                file_extension: 'json',
-                file_content: JSON.stringify({text}),
+                // file_extension: 'json',
+                // file_content: JSON.stringify({ text }),
+                file_extension: 'md',
+                file_content:
+`
+---
+hello: World!
+---
+${text}
+`,
             })
             .then(resolve)
             .catch(reject)
