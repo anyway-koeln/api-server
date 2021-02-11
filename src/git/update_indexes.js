@@ -2,12 +2,20 @@ const { Octokit } = require('@octokit/core')
 const { getSecret } = require('../secretManager.js')
 const { load_data_tree } = require('./functions.js')
 const async = require('async')
+const matter = require('gray-matter')
 
 function annotate_file(file, callback) {
     if (file.path.endsWith('.json')) {
         file.content_json = JSON.parse(file.content_raw) || null
+        callback(file)
+    } else if (file.path.endsWith('.md')) {
+        const data = matter(file.content_raw)
+        file.content_markdown = data.content
+        file.content_attributes = data.data
+        callback(file)
+    } else {
+        callback(null)
     }
-    callback(file)
 }
 
 async function load_content(owner, repo, file_sha) {
