@@ -14,8 +14,11 @@ const schema = gql`
 	}
 
 	type Incident {
-		id: ID
-		text: String
+		path: String
+		sha: String
+		basename: String
+		content_markdown: String
+		content_attributes: JSONObject
 	}
 
 	type Question {
