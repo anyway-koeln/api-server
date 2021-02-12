@@ -25,7 +25,7 @@ async function load_incident(incidentID) {
 module.exports = (parent, args, context, info) => {	
 	return new Promise((resolve,reject)=>{
         load_incident()
-        .then(doc => resolve)
+        .then(resolve)
         .catch(reject)
 	})
 }
