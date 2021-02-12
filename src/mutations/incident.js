@@ -3,24 +3,24 @@ const { commit } = require('../git/functions.js')
 const matter = require('gray-matter')
 
 module.exports = (parent, args, context, info) => {
-    const text = args.text
+  const text = args.text
 
-    return new Promise(async (resolve,reject)=>{
-        if (text === '') {
-            reject('No text.')
-        }else{
-            commit({
-                owner: await getSecret('owner'),
-                repo: await getSecret('incident_repo'),
-                file_extension: 'md',
-                file_content: matter.stringify(text, {
-                    date_added: new Date().toISOString(),
-                }),
-            })
-            .then(resolve)
-            .catch(reject)
-        }
-	})
+  return new Promise(async (resolve,reject)=>{
+    if (text === '') {
+      reject('No text.')
+    } else {
+      commit({
+        owner: await getSecret('owner'),
+        repo: await getSecret('incident_repo'),
+        file_extension: 'md',
+        file_content: matter.stringify(text, {
+          date_added: new Date().toISOString(),
+        }),
+      })
+        .then(resolve)
+        .catch(reject)
+    }
+  })
 }
 
 /*
