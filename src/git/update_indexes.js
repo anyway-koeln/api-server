@@ -96,8 +96,8 @@ function selfUpdate () {
 
               const MarkdownFilesWithChanges = markdown_files
                 .filter(file =>
-                  !(!!SHAToPathMapping[file.path]) // file should not exists
-                  || SHAToPathMapping[file.path] !== file.sha // or should have different content
+                  !SHAToPathMapping[file.path] || // file should not exists
+                  SHAToPathMapping[file.path] !== file.sha // or should have different content
                 )
 
               async.each(MarkdownFilesWithChanges, (file, callback) => {
@@ -111,7 +111,7 @@ function selfUpdate () {
                       // size: file.size,
                       content_raw: Buffer.from(response.data.content, 'base64').toString('utf-8'),
                     }, async file => {
-                      if (!(!!SHAToPathMapping[file.path])) { // insert new db entry
+                      if (!SHAToPathMapping[file.path]) { // insert new db entry
                         await collection.insertOne(file)
                       } else { // replace/update existing db entry
                         await collection.replaceOne({path: file.path}, file, {upsert: true})

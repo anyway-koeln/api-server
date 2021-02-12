@@ -4,10 +4,10 @@ const { v4: uuidv4 } = require('uuid')
 
 function createBranchFromTemplate(owner, repo) {
   return new Promise(async (resolve, reject) => {
-    if (!(!!owner)) {
+    if (!owner) {
       reject(new Error('Please provide an owner.'))
     }
-    if (!(!!repo)) {
+    if (!repo) {
       reject(new Error('Please provide a repo.'))
     }
 
@@ -52,10 +52,10 @@ function createBranchFromTemplate(owner, repo) {
 
 function commit({ owner, repo, filteExtension, fileContent }) {
   return new Promise(async (resolve, reject) => {
-    if (!(!!owner)) {
+    if (!owner) {
       reject(new Error('Please provide an owner.'))
     }
-    if (!(!!repo)) {
+    if (!repo) {
       reject(new Error('Please provide a repo.'))
     }
 
@@ -91,10 +91,10 @@ function commit({ owner, repo, filteExtension, fileContent }) {
 
 function loadDataTree({owner, repo}) {
   return new Promise(async (resolve, reject) => {
-    if (!(!!owner)) {
+    if (!owner) {
       reject(new Error('Please provide an owner.'))
     }
-    if (!(!!repo)) {
+    if (!repo) {
       reject(new Error('Please provide a repo.'))
     }
 
@@ -113,7 +113,7 @@ function loadDataTree({owner, repo}) {
 
         const dataTreeSHA = files[0]
 
-        if (!(!!dataTreeSHA)) {
+        if (!dataTreeSHA) {
           reject(new Error('Could not get data-tree sha.'))
         } else {
           octokit.request('GET /repos/{owner}/{repo}/git/trees/{tree_sha}', {
