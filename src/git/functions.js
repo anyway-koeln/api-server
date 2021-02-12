@@ -2,7 +2,7 @@ const { Octokit } = require('@octokit/core')
 const { getSecret } = require('../secretManager')
 const { v4: uuidv4 } = require('uuid')
 
-function create_branch_from_template(owner, repo) {
+function createBranchFromTemplate(owner, repo) {
   return new Promise(async (resolve, reject) => {
     if (!(!!owner)) {
       reject(new Error('Please provide an owner.'))
@@ -14,31 +14,31 @@ function create_branch_from_template(owner, repo) {
     const octokit = new Octokit({ auth: await getSecret('token') })
 
     const newDataID = uuidv4()
-    const new_branch_name = `data-${newDataID}`
+    const newBranchName = `data-${newDataID}`
 
     octokit.request('GET /repos/{owner}/{repo}/branches/{branch}', {
       owner,
       repo,
       branch: 'template',
     })
-      .then(template_branch_infos => {
-        const template_branch_sha = template_branch_infos.data.commit.sha
+      .then(templateBranchInfos => {
+        const templateBranchSHA = templateBranchInfos.data.commit.sha
 
         octokit.request('POST /repos/{owner}/{repo}/git/refs', {
           owner,
           repo,
-          ref: `refs/heads/${new_branch_name}`,
-          sha: template_branch_sha,
+          ref: `refs/heads/${newBranchName}`,
+          sha: templateBranchSHA,
         }).then(response => {
           resolve({
             id: newDataID,
-            name: new_branch_name,
+            name: newBranchName,
           })
         })
           .catch(error => {
             console.log('error', error)
             // if (error.status === 422) { // HttpError: Reference already exists
-            //     create_branch_from_template(owner, repo)
+            //     createBranchFromTemplate(owner, repo)
             //     .then(resolve)
             //     .catch(reject)
             // } else {
@@ -50,7 +50,7 @@ function create_branch_from_template(owner, repo) {
   })
 }
 
-function commit({ owner, repo, file_extension, file_content }) {
+function commit({ owner, repo, filteExtension, fileContent }) {
   return new Promise(async (resolve, reject) => {
     if (!(!!owner)) {
       reject(new Error('Please provide an owner.'))
@@ -61,26 +61,26 @@ function commit({ owner, repo, file_extension, file_content }) {
 
     const octokit = new Octokit({ auth: await getSecret('token') })
 
-    create_branch_from_template(owner, repo)
-      .then(new_branch_infos => {            
+    createBranchFromTemplate(owner, repo)
+      .then(newBranchInfos => {
         octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
           owner,
           repo,
-          path: `data/${new_branch_infos.id}.${file_extension || 'text'}`,
-          branch: new_branch_infos.name,
+          path: `data/${newBranchInfos.id}.${filteExtension || 'text'}`,
+          branch: newBranchInfos.name,
           message: 'Some message…',
-          content: Buffer.from(file_content).toString('base64'),
+          content: Buffer.from(fileContent).toString('base64'),
         })
           .then(response => {
             octokit.request('POST /repos/{owner}/{repo}/pulls', {
               owner,
               repo,
-              head: new_branch_infos.name,
+              head: newBranchInfos.name,
               base: 'data',
-              title: `Merge data from ${new_branch_infos.name}`,
+              title: `Merge data from ${newBranchInfos.name}`,
               body: 'Some description…',
             }).then(response => {
-              resolve(new_branch_infos.id)
+              resolve(newBranchInfos.id)
             }).catch(reject)
           })
           .catch(reject)
@@ -89,7 +89,7 @@ function commit({ owner, repo, file_extension, file_content }) {
   })
 }
 
-function load_data_tree({owner, repo}) {
+function loadDataTree({owner, repo}) {
   return new Promise(async (resolve, reject) => {
     if (!(!!owner)) {
       reject(new Error('Please provide an owner.'))
@@ -106,24 +106,24 @@ function load_data_tree({owner, repo}) {
       path: '',
       ref: 'data',
     })
-      .then(data_branch_tree_response => {
-        const files = data_branch_tree_response.data
+      .then(dataBranchTreeResponse => {
+        const files = dataBranchTreeResponse.data
           .filter(file => file.path === 'data')
           .map(file => file.sha)
 
-        const data_tree_sha = files[0]
+        const dataTreeSHA = files[0]
 
-        if (!(!!data_tree_sha)) {
+        if (!(!!dataTreeSHA)) {
           reject(new Error('Could not get data-tree sha.'))
         } else {
           octokit.request('GET /repos/{owner}/{repo}/git/trees/{tree_sha}', {
             owner,
             repo,
-            tree_sha: data_tree_sha,
+            tree_sha: dataTreeSHA,
           })
-            .then(data_tree_response => {
+            .then(dataTreeRespsonse => {
               resolve(
-                data_tree_response.data.tree
+                dataTreeRespsonse.data.tree
                   .filter(file => file.path !== '.gitkeep')
               )
             })
@@ -135,7 +135,7 @@ function load_data_tree({owner, repo}) {
 }
 
 module.exports = {
-  create_branch_from_template,
+  createBranchFromTemplate,
   commit,
-  load_data_tree,
+  loadDataTree,
 }

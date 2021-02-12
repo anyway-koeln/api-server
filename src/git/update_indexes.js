@@ -1,21 +1,21 @@
 const { Octokit } = require('@octokit/core')
 const { getSecret } = require('../secretManager.js')
-const { load_data_tree } = require('./functions.js')
+const { loadDataTree } = require('./functions.js')
 const async = require('async')
 const matter = require('gray-matter')
 const { MongoClient } = require("mongodb")
 const path = require('path')
 
-function getFileBasename(git_path) {
+function getFileBasename(gitPath) {
     // Path way:
-  return path.basename(git_path, path.extname(git_path))
+  return path.basename(gitPath, path.extname(gitPath))
 
     // RegExp way:
-    // const match = git_path.match(/(?:.*\/|^)(.*)\..*?$/)
+    // const match = gitPath.match(/(?:.*\/|^)(.*)\..*?$/)
     // return match[1] || null
 }
 
-function annotate_file(file, callback) {
+function annotateFile(file, callback) {
   file.basename = getFileBasename(file.path) // don't use the automatic mongoDB id but what we generated for git
 
   if (file.path.endsWith('.md')) {
@@ -27,18 +27,18 @@ function annotate_file(file, callback) {
   callback(file)
 }
 
-async function load_content(owner, repo, file_sha) {
+async function loadContent(owner, repo, fileSHA) {
   const octokit = new Octokit({ auth: await getSecret('token') })
 
   const response = await octokit.request('GET /repos/{owner}/{repo}/git/blobs/{file_sha}', {
     owner,
     repo,
-    file_sha,
+    file_sha: fileSHA,
   })
   return response
 }
 
-async function load_existing_path_sha_pairs() {
+async function loadExistingPathSHAPairs() {
   return new Promise(async (resolve, reject) => {
     const client = new MongoClient(await getSecret('mongodb_url'), { useUnifiedTopology: true })
     try {
@@ -55,9 +55,9 @@ async function load_existing_path_sha_pairs() {
       } else {
         resolve(
           (await cursor.toArray())
-            .reduce((sha_to_path_mapping, doc) => {
-              sha_to_path_mapping[doc.path] = doc.sha
-              return sha_to_path_mapping
+            .reduce((SHAToPathMapping, doc) => {
+              SHAToPathMapping[doc.path] = doc.sha
+              return SHAToPathMapping
             }, {})
         )
       }
@@ -69,7 +69,7 @@ async function load_existing_path_sha_pairs() {
   })
 }
 
-function self_update () {
+function selfUpdate () {
   return new Promise(async (resolve, reject) => {
     const owner = await getSecret('owner')
     const repo = await getSecret('incident_repo')
@@ -80,30 +80,30 @@ function self_update () {
       const database = client.db('cache')
       const collection = database.collection('incidents')
 
-      load_data_tree({ owner, repo })
+      loadDataTree({ owner, repo })
         .then(tree => {
-          load_existing_path_sha_pairs()
-            .then(async sha_to_path_mapping => {
+          loadExistingPathSHAPairs()
+            .then(async SHAToPathMapping => {
               const markdown_files = tree.filter(file => file.path.endsWith('.md')) // only look at markdown files
 
               // delete all docs from db, that are not in 
               const paths = markdown_files.map(file => file.path)
-              const paths_to_delete_from_db = Object.keys(sha_to_path_mapping)
+              const PathsToDeleteFromDB = Object.keys(SHAToPathMapping)
                 .filter(path => !paths.includes(path))
-              for (const path of paths_to_delete_from_db) {
+              for (const path of PathsToDeleteFromDB) {
                 await collection.deleteOne({ path })
               }
 
-              const markdown_files_with_changes = markdown_files
+              const MarkdownFilesWithChanges = markdown_files
                 .filter(file =>
-                  !(!!sha_to_path_mapping[file.path]) // file should not exists
-                  || sha_to_path_mapping[file.path] !== file.sha // or should have different content
+                  !(!!SHAToPathMapping[file.path]) // file should not exists
+                  || SHAToPathMapping[file.path] !== file.sha // or should have different content
                 )
 
-              async.each(markdown_files_with_changes, (file, callback) => {
-                load_content(owner, repo, file.sha)
+              async.each(MarkdownFilesWithChanges, (file, callback) => {
+                loadContent(owner, repo, file.sha)
                   .then(response => {
-                    annotate_file({
+                    annotateFile({
                       path: file.path,
                       sha: file.sha,
                       // mode: file.mode,
@@ -111,7 +111,7 @@ function self_update () {
                       // size: file.size,
                       content_raw: Buffer.from(response.data.content, 'base64').toString('utf-8'),
                     }, async file => {
-                      if (!(!!sha_to_path_mapping[file.path])) { // insert new db entry
+                      if (!(!!SHAToPathMapping[file.path])) { // insert new db entry
                         await collection.insertOne(file)
                       } else { // replace/update existing db entry
                         await collection.replaceOne({path: file.path}, file, {upsert: true})
@@ -137,4 +137,4 @@ function self_update () {
   })
 }
 
-module.exports = self_update
+module.exports = selfUpdate

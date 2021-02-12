@@ -7,13 +7,13 @@ module.exports = (parent, args, context, info) => {
 
   return new Promise(async (resolve,reject)=>{
     if (text === '') {
-      reject('No text.')
+      reject(new Error('No text'))
     } else {
       commit({
         owner: await getSecret('owner'),
         repo: await getSecret('incident_repo'),
-        file_extension: 'md',
-        file_content: matter.stringify(text, {
+        filteExtension: 'md',
+        fileContent: matter.stringify(text, {
           date_added: new Date().toISOString(),
         }),
       })
