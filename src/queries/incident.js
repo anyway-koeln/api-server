@@ -17,8 +17,8 @@ async function load_incident(incidentID) {
             .catch(reject)
         } catch (error) {
             reject(error)
-        } finally {
-            await client.close()
+        // } finally {
+        //     await client.close()
         }
     })
 }
