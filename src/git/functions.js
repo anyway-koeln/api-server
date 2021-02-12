@@ -2,7 +2,7 @@ const { Octokit } = require('@octokit/core')
 const { getSecret } = require('../secretManager')
 const { v4: uuidv4 } = require('uuid')
 
-function createBranchFromTemplate(owner, repo) {
+function createBranchFromTemplate (owner, repo) {
   return new Promise(async (resolve, reject) => {
     if (!owner) {
       reject(new Error('Please provide an owner.'))
@@ -19,7 +19,7 @@ function createBranchFromTemplate(owner, repo) {
     octokit.request('GET /repos/{owner}/{repo}/branches/{branch}', {
       owner,
       repo,
-      branch: 'template',
+      branch: 'template'
     })
       .then(templateBranchInfos => {
         const templateBranchSHA = templateBranchInfos.data.commit.sha
@@ -28,11 +28,11 @@ function createBranchFromTemplate(owner, repo) {
           owner,
           repo,
           ref: `refs/heads/${newBranchName}`,
-          sha: templateBranchSHA,
+          sha: templateBranchSHA
         }).then(response => {
           resolve({
             id: newDataID,
-            name: newBranchName,
+            name: newBranchName
           })
         })
           .catch(error => {
@@ -50,7 +50,7 @@ function createBranchFromTemplate(owner, repo) {
   })
 }
 
-function commit({ owner, repo, filteExtension, fileContent }) {
+function commit ({ owner, repo, filteExtension, fileContent }) {
   return new Promise(async (resolve, reject) => {
     if (!owner) {
       reject(new Error('Please provide an owner.'))
@@ -137,5 +137,5 @@ function loadDataTree({owner, repo}) {
 module.exports = {
   createBranchFromTemplate,
   commit,
-  loadDataTree,
+  loadDataTree
 }

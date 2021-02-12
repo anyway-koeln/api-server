@@ -5,8 +5,8 @@ const matter = require('gray-matter')
 module.exports = (parent, args, context, info) => {
   const text = args.text
 
-  return new Promise(async (resolve,reject)=>{
-    if (text === '') {
+  return new Promise(async (resolve, reject) => {
+    if (text === '') {
       reject(new Error('No text'))
     } else {
       commit({
@@ -14,8 +14,8 @@ module.exports = (parent, args, context, info) => {
         repo: await getSecret('incident_repo'),
         filteExtension: 'md',
         fileContent: matter.stringify(text, {
-          date_added: new Date().toISOString(),
-        }),
+          date_added: new Date().toISOString()
+        })
       })
         .then(resolve)
         .catch(reject)

@@ -3,10 +3,10 @@ const { getSecret } = require('../secretManager.js')
 const { loadDataTree } = require('./functions.js')
 const async = require('async')
 const matter = require('gray-matter')
-const { MongoClient } = require("mongodb")
+const { MongoClient } = require('mongodb')
 const path = require('path')
 
-function getFileBasename(gitPath) {
+function getFileBasename (gitPath) {
     // Path way:
   return path.basename(gitPath, path.extname(gitPath))
 
@@ -15,7 +15,7 @@ function getFileBasename(gitPath) {
     // return match[1] || null
 }
 
-function annotateFile(file, callback) {
+function annotateFile (file, callback) {
   file.basename = getFileBasename(file.path) // don't use the automatic mongoDB id but what we generated for git
 
   if (file.path.endsWith('.md')) {
@@ -27,18 +27,18 @@ function annotateFile(file, callback) {
   callback(file)
 }
 
-async function loadContent(owner, repo, fileSHA) {
+async function loadContent (owner, repo, fileSHA) {
   const octokit = new Octokit({ auth: await getSecret('token') })
 
   const response = await octokit.request('GET /repos/{owner}/{repo}/git/blobs/{file_sha}', {
     owner,
     repo,
-    file_sha: fileSHA,
+    file_sha: fileSHA
   })
   return response
 }
 
-async function loadExistingPathSHAPairs() {
+async function loadExistingPathSHAPairs () {
   return new Promise(async (resolve, reject) => {
     const client = new MongoClient(await getSecret('mongodb_url'), { useUnifiedTopology: true })
     try {
@@ -84,17 +84,17 @@ function selfUpdate () {
         .then(tree => {
           loadExistingPathSHAPairs()
             .then(async SHAToPathMapping => {
-              const markdown_files = tree.filter(file => file.path.endsWith('.md')) // only look at markdown files
+              const markdownFiles = tree.filter(file => file.path.endsWith('.md')) // only look at markdown files
 
               // delete all docs from db, that are not in 
-              const paths = markdown_files.map(file => file.path)
+              const paths = markdownFiles.map(file => file.path)
               const PathsToDeleteFromDB = Object.keys(SHAToPathMapping)
                 .filter(path => !paths.includes(path))
               for (const path of PathsToDeleteFromDB) {
                 await collection.deleteOne({ path })
               }
 
-              const MarkdownFilesWithChanges = markdown_files
+              const MarkdownFilesWithChanges = markdownFiles
                 .filter(file =>
                   !SHAToPathMapping[file.path] || // file should not exists
                   SHAToPathMapping[file.path] !== file.sha // or should have different content

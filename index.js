@@ -7,7 +7,7 @@ const { getSecret } = require('./src/secretManager.js')
 const typeDefs = require('./src/schema.js')
 const resolvers = require('./src/resolvers.js')
 
-const update_indexes = require('./src/git/update_indexes.js')
+const updateIndexes = require('./src/git/updateIndexes.js')
 
 // const incidentStore = new GitStore('incident')
 
@@ -49,7 +49,7 @@ app.post('/self_update', (req, res) => {
         && payload.pull_request.merged === true
     ) {
         // Update Indexes
-        update_indexes()
+        updateIndexes()
         .then(() => res.send('updated'))
         .catch(error => res.send('error'))
     } else if (
