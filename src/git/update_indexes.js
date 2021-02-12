@@ -85,8 +85,6 @@ function self_update () {
 
                 load_existing_path_sha_pairs()
                 .then(async sha_to_path_mapping => {
-                    console.log(sha_to_path_mapping)
-
                     const markdown_files = tree.filter(file => file.path.endsWith('.md')) // only look at markdown files
 
                     // delete all docs from db, that are not in 
