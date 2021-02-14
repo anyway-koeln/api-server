@@ -17,7 +17,7 @@ module.exports = (parent, args, context, info) => {
         fileContent: matter.stringify(text, {
           date_added: new Date().toISOString(),
           properties: properties
-        }) 
+        })
       })
         .then(resolve)
         .catch(reject)
