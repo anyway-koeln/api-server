@@ -4,6 +4,7 @@ const matter = require('gray-matter')
 
 module.exports = (parent, args, context, info) => {
   const text = args.text
+  const properties = args.properties || {}
 
   return new Promise(async (resolve, reject) => {
     if (text === '') {
@@ -14,7 +15,9 @@ module.exports = (parent, args, context, info) => {
         repo: await getSecret('incident_repo'),
         fileExtension: 'md',
         fileContent: matter.stringify(text, {
-        })
+          date_added: new Date().toISOString(),
+          properties: properties
+        }) 
       })
         .then(resolve)
         .catch(reject)
