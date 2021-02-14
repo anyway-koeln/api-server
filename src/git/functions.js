@@ -50,7 +50,7 @@ function createBranchFromTemplate (owner, repo) {
   })
 }
 
-function commit({ owner, repo, fileExtension, fileContent }) {
+function commit ({ owner, repo, fileExtension, fileContent }) {
   return new Promise(async (resolve, reject) => {
     if (!owner) {
       reject(new Error('Please provide an owner.'))
@@ -69,7 +69,7 @@ function commit({ owner, repo, fileExtension, fileContent }) {
           path: `data/${newBranchInfos.id}.${fileExtension || 'text'}`,
           branch: newBranchInfos.name,
           message: 'Some message…',
-          content: Buffer.from(fileContent).toString('base64'),
+          content: Buffer.from(fileContent).toString('base64')
         })
           .then(response => {
             octokit.request('POST /repos/{owner}/{repo}/pulls', {
@@ -78,7 +78,7 @@ function commit({ owner, repo, fileExtension, fileContent }) {
               head: newBranchInfos.name,
               base: 'data',
               title: `Merge data from ${newBranchInfos.name}`,
-              body: 'Some description…',
+              body: 'Some description…'
             }).then(response => {
               resolve(newBranchInfos.id)
             }).catch(reject)
@@ -89,7 +89,7 @@ function commit({ owner, repo, fileExtension, fileContent }) {
   })
 }
 
-function loadDataTree({owner, repo}) {
+function loadDataTree ({ owner, repo }) {
   return new Promise(async (resolve, reject) => {
     if (!owner) {
       reject(new Error('Please provide an owner.'))
@@ -104,7 +104,7 @@ function loadDataTree({owner, repo}) {
       owner,
       repo,
       path: '',
-      ref: 'data',
+      ref: 'data'
     })
       .then(dataBranchTreeResponse => {
         const files = dataBranchTreeResponse.data
@@ -119,7 +119,7 @@ function loadDataTree({owner, repo}) {
           octokit.request('GET /repos/{owner}/{repo}/git/trees/{tree_sha}', {
             owner,
             repo,
-            tree_sha: dataTreeSHA,
+            tree_sha: dataTreeSHA
           })
             .then(dataTreeRespsonse => {
               resolve(
