@@ -7,12 +7,12 @@ const { MongoClient } = require('mongodb')
 const path = require('path')
 
 function getFileBasename (gitPath) {
-    // Path way:
+  // Path way:
   return path.basename(gitPath, path.extname(gitPath))
 
-    // RegExp way:
-    // const match = gitPath.match(/(?:.*\/|^)(.*)\..*?$/)
-    // return match[1] || null
+  // RegExp way:
+  // const match = gitPath.match(/(?:.*\/|^)(.*)\..*?$/)
+  // return match[1] || null
 }
 
 function annotateFile (file, callback) {
@@ -47,7 +47,7 @@ async function loadExistingPathSHAPairs () {
       const collection = database.collection('incidents')
 
       const cursor = collection.find({}, {
-        projection: { _id: 0, path: 1, sha: 1 },
+        projection: { _id: 0, path: 1, sha: 1 }
       })
 
       if ((await cursor.count()) === 0) {
@@ -86,7 +86,7 @@ function selfUpdate () {
             .then(async SHAToPathMapping => {
               const markdownFiles = tree.filter(file => file.path.endsWith('.md')) // only look at markdown files
 
-              // delete all docs from db, that are not in 
+              // delete all docs from db, that are not in
               const paths = markdownFiles.map(file => file.path)
               const PathsToDeleteFromDB = Object.keys(SHAToPathMapping)
                 .filter(path => !paths.includes(path))
@@ -109,12 +109,12 @@ function selfUpdate () {
                       // mode: file.mode,
                       // type: file.type,
                       // size: file.size,
-                      content_raw: Buffer.from(response.data.content, 'base64').toString('utf-8'),
+                      content_raw: Buffer.from(response.data.content, 'base64').toString('utf-8')
                     }, async file => {
                       if (!SHAToPathMapping[file.path]) { // insert new db entry
                         await collection.insertOne(file)
                       } else { // replace/update existing db entry
-                        await collection.replaceOne({path: file.path}, file, {upsert: true})
+                        await collection.replaceOne({ path: file.path }, file, { upsert: true })
                       }
                       callback()
                     })
