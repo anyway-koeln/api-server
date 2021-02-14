@@ -3,12 +3,12 @@ const { commit } = require('../git/functions.js')
 const matter = require('gray-matter')
 
 module.exports = (parent, args, context, info) => {
-  const text = args.text
+  const text = args.text || ''
   const properties = args.properties || {}
 
   return new Promise(async (resolve, reject) => {
     if (text === '') {
-      reject(new Error('No text'))
+      reject(new Error('Please provide a non empty text.'))
     } else {
       commit({
         owner: await getSecret('owner'),
@@ -17,7 +17,7 @@ module.exports = (parent, args, context, info) => {
         fileContent: matter.stringify(text, {
           date_added: new Date().toISOString(),
           properties: properties
-        }) 
+        })
       })
         .then(resolve)
         .catch(reject)
