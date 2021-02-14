@@ -8,7 +8,7 @@ module.exports = (parent, args, context, info) => {
 
   return new Promise(async (resolve, reject) => {
     if (text === '') {
-      reject(new Error('No text'))
+      reject(new Error('Please provide a non empty text.'))
     } else {
       commit({
         owner: await getSecret('owner'),
