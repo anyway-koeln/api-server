@@ -12,7 +12,7 @@ module.exports = (parent, args, context, info) => {
       commit({
         owner: await getSecret('owner'),
         repo: await getSecret('incident_repo'),
-        filteExtension: 'md',
+        fileExtension: 'md',
         fileContent: matter.stringify(text, {
           date_added: new Date().toISOString()
         })

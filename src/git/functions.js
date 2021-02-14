@@ -50,7 +50,7 @@ function createBranchFromTemplate (owner, repo) {
   })
 }
 
-function commit ({ owner, repo, filteExtension, fileContent }) {
+function commit({ owner, repo, fileExtension, fileContent }) {
   return new Promise(async (resolve, reject) => {
     if (!owner) {
       reject(new Error('Please provide an owner.'))
@@ -66,7 +66,7 @@ function commit ({ owner, repo, filteExtension, fileContent }) {
         octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
           owner,
           repo,
-          path: `data/${newBranchInfos.id}.${filteExtension || 'text'}`,
+          path: `data/${newBranchInfos.id}.${fileExtension || 'text'}`,
           branch: newBranchInfos.name,
           message: 'Some message…',
           content: Buffer.from(fileContent).toString('base64'),
