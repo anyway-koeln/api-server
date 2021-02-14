@@ -3,7 +3,7 @@ const { commit } = require('../git/functions.js')
 const matter = require('gray-matter')
 
 module.exports = (parent, args, context, info) => {
-  const text = args.text
+  const text = args.text || ''
   const properties = args.properties || {}
 
   return new Promise(async (resolve, reject) => {
