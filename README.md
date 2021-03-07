@@ -1,5 +1,8 @@
 # api-server
 
+[![CI](https://github.com/anyway-koeln/api-server/actions/workflows/deploy-to-uberspace.yml/badge.svg)](https://github.com/anyway-koeln/api-server/actions/workflows/deploy-to-uberspace.yml)
+[![CodeQL](https://github.com/anyway-koeln/api-server/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/anyway-koeln/api-server/actions/workflows/codeql-analysis.yml)
+
 ## Start the Server
 Use `yarn start` to start the server.</br>
 You can access the graphql endpoint at `0.0.0.0:4000/graphql`.
