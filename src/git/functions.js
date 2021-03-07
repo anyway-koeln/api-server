@@ -1,53 +1,15 @@
 const { Octokit } = require('@octokit/core')
 const { getSecret } = require('../secretManager')
 const { v4: uuidv4 } = require('uuid')
+const { createNewDataBranch } = require('./octokit-helpers')
 
-function createBranchFromTemplate (owner, repo) {
-  return new Promise(async (resolve, reject) => {
-    if (!owner) {
-      reject(new Error('Please provide an owner.'))
-    }
-    if (!repo) {
-      reject(new Error('Please provide a repo.'))
-    }
+async function createBranchFromTemplate () {
+  const newDataID = uuidv4()
+  const newBranchName = `data-${newDataID}`
 
-    const octokit = new Octokit({ auth: await getSecret('token') })
+  await createNewDataBranch(newBranchName)
 
-    const newDataID = uuidv4()
-    const newBranchName = `data-${newDataID}`
-
-    octokit.request('GET /repos/{owner}/{repo}/branches/{branch}', {
-      owner,
-      repo,
-      branch: 'template'
-    })
-      .then(templateBranchInfos => {
-        const templateBranchSHA = templateBranchInfos.data.commit.sha
-
-        octokit.request('POST /repos/{owner}/{repo}/git/refs', {
-          owner,
-          repo,
-          ref: `refs/heads/${newBranchName}`,
-          sha: templateBranchSHA
-        }).then(response => {
-          resolve({
-            id: newDataID,
-            name: newBranchName
-          })
-        })
-          .catch(error => {
-            console.log('error', error)
-            // if (error.status === 422) { // HttpError: Reference already exists
-            //     createBranchFromTemplate(owner, repo)
-            //     .then(resolve)
-            //     .catch(reject)
-            // } else {
-            reject(error)
-            // }
-          })
-      })
-      .catch(reject)
-  })
+  return { id: newDataID, name: newBranchName }
 }
 
 function commit ({ owner, repo, fileExtension, fileContent }) {
@@ -61,8 +23,9 @@ function commit ({ owner, repo, fileExtension, fileContent }) {
 
     const octokit = new Octokit({ auth: await getSecret('token') })
 
-    createBranchFromTemplate(owner, repo)
+    createBranchFromTemplate()
       .then(newBranchInfos => {
+        console.log(newBranchInfos)
         octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
           owner,
           repo,
@@ -135,7 +98,6 @@ function loadDataTree ({ owner, repo }) {
 }
 
 module.exports = {
-  createBranchFromTemplate,
   commit,
   loadDataTree
 }
