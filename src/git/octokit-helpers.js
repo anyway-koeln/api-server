@@ -89,3 +89,13 @@ exports.getDataTree = async (treeSHA) => {
     tree_sha: treeSHA
   })
 }
+
+exports.loadContentBySHA = async (fileSHA) => {
+  const { octokit, owner, repo } = await getRepositoryData()
+
+  return await octokit.request('GET /repos/{owner}/{repo}/git/blobs/{file_sha}', {
+    owner,
+    repo,
+    file_sha: fileSHA
+  })
+}
