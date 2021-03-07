@@ -2,14 +2,11 @@ const express = require('express')
 const ApolloServer = require('apollo-server-express').ApolloServer
 
 const { getSecret } = require('./src/secretManager.js')
-// const GitStore = require('./src/git/git-hub-store')
 
 const typeDefs = require('./src/schema.js')
 const resolvers = require('./src/resolvers.js')
 
 const updateIndexes = require('./src/git/updateIndexes.js')
-
-// const incidentStore = new GitStore('incident')
 
 const app = express()
 app.use(express.json())
