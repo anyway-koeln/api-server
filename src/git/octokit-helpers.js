@@ -68,3 +68,24 @@ exports.createMergeRequest = async (branchMetadata) => {
     body: 'Some description…'
   })
 }
+
+exports.getDataBranchTree = async () => {
+  const { octokit, owner, repo } = await getRepositoryData()
+
+  return octokit.request('GET /repos/{owner}/{repo}/contents/{path}?ref={ref}', {
+    owner,
+    repo,
+    path: '',
+    ref: 'data'
+  })
+}
+
+exports.getDataTree = async (treeSHA) => {
+  const { octokit, owner, repo } = await getRepositoryData()
+
+  octokit.request('GET /repos/{owner}/{repo}/git/trees/{tree_sha}', {
+    owner,
+    repo,
+    tree_sha: treeSHA
+  })
+}

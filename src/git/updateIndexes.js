@@ -80,7 +80,7 @@ function selfUpdate () {
       const database = client.db('cache')
       const collection = database.collection('incidents')
 
-      loadDataTree({ owner, repo })
+      loadDataTree()
         .then(tree => {
           loadExistingPathSHAPairs()
             .then(async SHAToPathMapping => {
