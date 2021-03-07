@@ -11,8 +11,6 @@ module.exports = (parent, args, context, info) => {
       reject(new Error('Please provide a non empty text.'))
     } else {
       commit({
-        owner: await getSecret('owner'),
-        repo: await getSecret('incident_repo'),
         fileExtension: 'md',
         fileContent: matter.stringify(text, {
           date_added: new Date().toISOString(),

@@ -1,7 +1,7 @@
 const { Octokit } = require('@octokit/core')
 const { getSecret } = require('../secretManager')
 const { v4: uuidv4 } = require('uuid')
-const { createNewDataBranch } = require('./octokit-helpers')
+const { createNewDataBranch, pushFileToDataBranch, createMergeRequest } = require('./octokit-helpers')
 
 async function createBranchFromTemplate () {
   const newDataID = uuidv4()
@@ -12,44 +12,12 @@ async function createBranchFromTemplate () {
   return { id: newDataID, name: newBranchName }
 }
 
-function commit ({ owner, repo, fileExtension, fileContent }) {
-  return new Promise(async (resolve, reject) => {
-    if (!owner) {
-      reject(new Error('Please provide an owner.'))
-    }
-    if (!repo) {
-      reject(new Error('Please provide a repo.'))
-    }
+async function commit ({ fileExtension, fileContent }) {
+  const branchMetadata = await createBranchFromTemplate()
+  await pushFileToDataBranch(branchMetadata, fileContent, fileExtension)
+  await createMergeRequest(branchMetadata)
 
-    const octokit = new Octokit({ auth: await getSecret('token') })
-
-    createBranchFromTemplate()
-      .then(newBranchInfos => {
-        console.log(newBranchInfos)
-        octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
-          owner,
-          repo,
-          path: `data/${newBranchInfos.id}.${fileExtension || 'text'}`,
-          branch: newBranchInfos.name,
-          message: 'Some message…',
-          content: Buffer.from(fileContent).toString('base64')
-        })
-          .then(response => {
-            octokit.request('POST /repos/{owner}/{repo}/pulls', {
-              owner,
-              repo,
-              head: newBranchInfos.name,
-              base: 'data',
-              title: `Merge data from ${newBranchInfos.name}`,
-              body: 'Some description…'
-            }).then(response => {
-              resolve(newBranchInfos.id)
-            }).catch(reject)
-          })
-          .catch(reject)
-      })
-      .catch(reject)
-  })
+  return branchMetadata.id
 }
 
 function loadDataTree ({ owner, repo }) {

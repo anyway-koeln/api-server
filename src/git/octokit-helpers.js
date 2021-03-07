@@ -43,7 +43,28 @@ exports.createNewDataBranch = async (dataBranchName) => {
   })
 }
 
-exports.createNewRef = async () => {
+exports.pushFileToDataBranch = async (branchMetadata, fileContent, fileExtension) => {
   const { octokit, owner, repo } = await getRepositoryData()
 
+  return octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
+    owner,
+    repo,
+    path: `data/${branchMetadata.id}.${fileExtension || 'text'}`,
+    branch: branchMetadata.name,
+    message: 'Some message…',
+    content: Buffer.from(fileContent).toString('base64')
+  })
+}
+
+exports.createMergeRequest = async (branchMetadata) => {
+  const { octokit, owner, repo } = await getRepositoryData()
+
+  return octokit.request('POST /repos/{owner}/{repo}/pulls', {
+    owner,
+    repo,
+    head: branchMetadata.name,
+    base: 'data',
+    title: `Merge data from ${branchMetadata.name}`,
+    body: 'Some description…'
+  })
 }
