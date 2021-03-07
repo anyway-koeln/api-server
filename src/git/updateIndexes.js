@@ -5,6 +5,9 @@ const async = require('async')
 const matter = require('gray-matter')
 const { MongoClient } = require('mongodb')
 const path = require('path')
+const {
+  loadContentBySHA
+} = require('./octokit-helpers')
 
 function getFileBasename (gitPath) {
   // Path way:
@@ -27,14 +30,8 @@ function annotateFile (file, callback) {
   callback(file)
 }
 
-async function loadContent (owner, repo, fileSHA) {
-  const octokit = new Octokit({ auth: await getSecret('token') })
-
-  const response = await octokit.request('GET /repos/{owner}/{repo}/git/blobs/{file_sha}', {
-    owner,
-    repo,
-    file_sha: fileSHA
-  })
+async function loadContent (fileSHA) {
+  const response = await loadContentBySHA(fileSHA)
   return response
 }
 
@@ -71,16 +68,13 @@ async function loadExistingPathSHAPairs () {
 
 function selfUpdate () {
   return new Promise(async (resolve, reject) => {
-    const owner = await getSecret('owner')
-    const repo = await getSecret('incident_repo')
-
     const client = new MongoClient(await getSecret('mongodb_url'), { useUnifiedTopology: true })
     try {
       await client.connect()
       const database = client.db('cache')
       const collection = database.collection('incidents')
 
-      loadDataTree({ owner, repo })
+      loadDataTree()
         .then(tree => {
           loadExistingPathSHAPairs()
             .then(async SHAToPathMapping => {
@@ -101,7 +95,7 @@ function selfUpdate () {
                 )
 
               async.each(MarkdownFilesWithChanges, (file, callback) => {
-                loadContent(owner, repo, file.sha)
+                loadContent(file.sha)
                   .then(response => {
                     annotateFile({
                       path: file.path,
