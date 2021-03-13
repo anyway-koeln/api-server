@@ -83,7 +83,7 @@ exports.getDataBranchTree = async () => {
 exports.getDataTree = async (treeSHA) => {
   const { octokit, owner, repo } = await getRepositoryData()
 
-  octokit.request('GET /repos/{owner}/{repo}/git/trees/{tree_sha}', {
+  return await octokit.request('GET /repos/{owner}/{repo}/git/trees/{tree_sha}', {
     owner,
     repo,
     tree_sha: treeSHA
