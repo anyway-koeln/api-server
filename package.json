@@ -17,8 +17,14 @@
     "url": "https://github.com/anyway-koeln/api-server/issues"
   },
   "homepage": "https://github.com/anyway-koeln/api-server#readme",
+  "standard": {
+    "env": [
+      "jest"
+    ]
+  },
   "dependencies": {
     "@octokit/core": "^3.2.5",
+    "@types/jest": "^26.0.21",
     "apollo-server-express": "^2.19.0",
     "async": "^3.2.0",
     "async-mutex": "^0.2.6",
@@ -33,6 +39,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "jest": "^26.6.3",
     "standard": "^16.0.3"
   }
 }

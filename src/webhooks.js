@@ -1,6 +1,6 @@
 const updateIndexes = require('./git/updateIndexes.js')
 
-export default function initWebhoks (app) {
+module.exports = function initWebhoks (app) {
   app.get('/self_update', (req, res) => {
     res.send('Please use POST.')
   })

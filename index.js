@@ -8,8 +8,18 @@ const resolvers = require('./src/resolvers.js')
 
 const initWebhooks = require('./src/webhooks.js')
 
+const DB = require('./src/db/db')
+const IncidentStorage = require('./src/db/incidentStorage')
+const OctokitHelper = require('./src/git/ocotokitHelper')
+
 const app = express()
 app.use(express.json())
+
+const octokitHelper = new OctokitHelper(getSecret('token'), getSecret('owner'), getSecret('incident_repo'))
+const db = new DB()
+const incidentStorage = new IncidentStorage(db, octokitHelper)
+
+incidentStorage.loadInitialData()
 
 new ApolloServer({
   typeDefs,
@@ -18,7 +28,7 @@ new ApolloServer({
   context: async ({ req }) => {
     return {
       getSecret,
-    //   incidentStore
+      incidentStorage
     }
   }
 }).applyMiddleware({ app, path: '/graphql', cors: true })
