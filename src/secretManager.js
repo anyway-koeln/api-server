@@ -1,32 +1,14 @@
 const env = require('node-env-file')
 env(`${__dirname}/../.env`)
 
-// TODO: Look into "rotating secrets".
-
-const secrets = process.env
-
-function getSecretPromise(secretName){
-	return new Promise((resolve,reject)=>{
-		if (!!secrets[secretName]) {
-			resolve(secrets[secretName])
-		}else{
-			reject('no rights to secret')
-		}
-	})
-}
-
-async function getSecretAsync(secretName){
-	try {
-		return await getSecretPromise(secretName)
-	}catch (error) {
-		console.error(error)
-	}
-
-	return false
+function getSecret (secretName) {
+  const secret = process.env[secretName]
+  if (secret) {
+    return secret
+  }
+  throw new Error(`No secret with key ${secretName} specified!`)
 }
 
 module.exports = {
-	// getSecretPromise,
-	// getSecretAsync,
-	getSecret: getSecretAsync,
+  getSecret: getSecret
 }

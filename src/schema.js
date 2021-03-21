@@ -17,8 +17,7 @@ type Incident {
   path: String
   sha: String
   basename: String
-  content_markdown: String
-  content_attributes: JSONObject
+  content: String
 }
 
 type Question {
