@@ -23,10 +23,9 @@ class IncidentStorage {
   async import (content, sha, filePath) {
     await this.db.ready
     const newEntry = {}
-    newEntry.content = Buffer.from(content, 'base64').toString('utf-8')
+    newEntry.content = content
     newEntry.basename = path.basename(filePath, path.extname(filePath))
     newEntry.sha = sha
-    console.log(newEntry.content)
     this.db.incidents.insertOne(newEntry)
   }
 
