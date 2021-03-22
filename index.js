@@ -6,7 +6,7 @@ const { getSecret } = require('./src/secretManager.js')
 const typeDefs = require('./src/schema.js')
 const resolvers = require('./src/resolvers.js')
 
-const initWebhooks = require('./src/webhooks.js')
+// const initWebhooks = require('./src/webhooks.js')
 
 const DB = require('./src/db/db')
 const IncidentStorage = require('./src/db/incidentStorage')
@@ -43,7 +43,7 @@ app.get('/', (req, res) => {
   `)
 })
 
-initWebhooks(app)
+// initWebhooks(app)
 
 const port = 4000
 const host = '0.0.0.0' // Uberspace wants 0.0.0.0
