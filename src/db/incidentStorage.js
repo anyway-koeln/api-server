@@ -62,7 +62,6 @@ class IncidentStorage {
     newEntry.text = text
     newEntry.basename = path.basename(filePath, path.extname(filePath))
     newEntry.sha = sha
-    console.log(newEntry.content)
     this.db.incidents.insertOne(newEntry)
   }
 
@@ -85,8 +84,6 @@ class IncidentStorage {
 
   async findByID (id) {
     await this.db.ready
-    const incident = await this.db.incidents.findOne({ basename: id }, {})
-    console.log(incident)
     return await this.db.incidents.findOne({ basename: id }, {})
   }
 }
