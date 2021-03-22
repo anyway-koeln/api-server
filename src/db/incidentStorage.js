@@ -66,19 +66,28 @@ class IncidentStorage {
   }
 
   async createIncidentPR (text, properties = {}) {
+    text = text.trim()
+
     const content = [
       '---',
       yaml.dump(properties, { skipInvalid: true, lineWidth: -1 }).trim(),
       '---',
-      text.trim()
+      text
     ].join('\n')
+
+    let preview = ''
+    if (text.length > 50) {
+      preview = text.slice(0, 49) + '…'
+    } else {
+      preview = text
+    }
 
     await this.ocotokit.ready
     const newIncidentID = uuidv4()
     const branchName = `data-${newIncidentID}`
     await this.ocotokit.createNewDataBranch(branchName)
-    await this.ocotokit.pushFileToDataBranch({ name: branchName, id: newIncidentID }, content, 'md')
-    await this.ocotokit.createMergeRequest({ name: branchName, id: newIncidentID })
+    await this.ocotokit.pushFileToDataBranch({ name: branchName, id: newIncidentID }, content, 'md', preview)
+    await this.ocotokit.createMergeRequest({ name: branchName, id: newIncidentID }, preview)
     return newIncidentID
   }
 
