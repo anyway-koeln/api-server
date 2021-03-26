@@ -1,6 +1,6 @@
 const path = require('path')
 const { v4: uuidv4 } = require('uuid')
-const yaml = require('js-yaml')
+const { fromFrontmatter, toFrontmatter } = require('./frontmatter.js')
 
 class IncidentStorage {
   constructor (db, octokitHelper) {
@@ -21,43 +21,11 @@ class IncidentStorage {
     await Promise.all(contentRequests)
   }
 
-  parseContent (content) {
-    const lines = content.split('\n')
-
-    let text = null
-    let properties = {}
-
-    let start = lines.indexOf('---')
-    if (start > -1) {
-      start += 1
-      const end = lines.indexOf('---', start)
-      if (end > -1) {
-        const section = lines.slice(start, end).join('\n')
-        text = lines.slice(end + 1).join('\n')
-
-        try {
-          properties = yaml.load(section)
-        } catch (error) {
-          console.error(error)
-        }
-      }
-    }
-
-    if (text === null) {
-      text = content
-    }
-
-    return {
-      text,
-      properties
-    }
-  }
-
   async import (content, sha, filePath) {
     await this.db.ready
     const newEntry = {}
     newEntry.content = Buffer.from(content, 'base64').toString('utf-8')
-    const { text, properties } = this.parseContent(newEntry.content)
+    const { text, properties } = fromFrontmatter(newEntry.content)
     newEntry.properties = properties
     newEntry.text = text
     newEntry.basename = path.basename(filePath, path.extname(filePath))
@@ -68,12 +36,7 @@ class IncidentStorage {
   async createIncidentPR (text, properties = {}) {
     text = text.trim()
 
-    const content = [
-      '---',
-      yaml.dump(properties, { skipInvalid: true, lineWidth: -1 }).trim(),
-      '---',
-      text
-    ].join('\n')
+    const content = toFrontmatter(text, properties)
 
     let preview = ''
     if (text.length > 50) {
