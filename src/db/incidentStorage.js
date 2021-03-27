@@ -1,11 +1,11 @@
 const path = require('path')
 const { v4: uuidv4 } = require('uuid')
-const { fromFrontmatter, toFrontmatter } = require('./frontmatter.js')
 
 class IncidentStorage {
-  constructor (db, octokitHelper) {
+  constructor (db, octokitHelper, frontmatter) {
     this.db = db
     this.ocotokit = octokitHelper
+    this.frontmatter = frontmatter
   }
 
   async loadInitialData () {
@@ -24,8 +24,7 @@ class IncidentStorage {
   async import (content, sha, filePath) {
     await this.db.ready
     const newEntry = {}
-    newEntry.content = Buffer.from(content, 'base64').toString('utf-8')
-    const { text, properties } = fromFrontmatter(newEntry.content)
+    const { text, properties } = this.frontmatter.extract(content)
     newEntry.properties = properties
     newEntry.text = text
     newEntry.basename = path.basename(filePath, path.extname(filePath))
@@ -36,7 +35,7 @@ class IncidentStorage {
   async createIncidentPR (text, properties = {}) {
     text = text.trim()
 
-    const content = toFrontmatter(text, properties)
+    const content = this.frontmatter.add(text, properties)
 
     let preview = ''
     if (text.length > 50) {

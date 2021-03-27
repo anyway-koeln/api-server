@@ -1,47 +1,46 @@
 const yaml = require('js-yaml')
 
-function fromFrontmatter (content) {
-  const lines = content.split('\n')
+class Frontmatter {
+  extract (content) {
+    const lines = content.split('\n')
 
-  let text = null
-  let properties = {}
+    let text = null
+    let properties = {}
 
-  let start = lines.indexOf('---')
-  if (start > -1) {
-    start += 1
-    const end = lines.indexOf('---', start)
-    if (end > -1) {
-      const section = lines.slice(start, end).join('\n')
-      text = lines.slice(end + 1).join('\n')
+    let start = lines.indexOf('---')
+    if (start > -1) {
+      start += 1
+      const end = lines.indexOf('---', start)
+      if (end > -1) {
+        const section = lines.slice(start, end).join('\n')
+        text = lines.slice(end + 1).join('\n')
 
-      try {
-        properties = yaml.load(section)
-      } catch (error) {
-        console.error(error)
+        try {
+          properties = yaml.load(section)
+        } catch (error) {
+          console.error(error)
+        }
       }
+    }
+
+    if (text === null) {
+      text = content
+    }
+
+    return {
+      text,
+      properties
     }
   }
 
-  if (text === null) {
-    text = content
+  add (text, properties) {
+    return [
+      '---',
+      yaml.dump(properties, { skipInvalid: true, lineWidth: -1 }).trim(),
+      '---',
+      text
+    ].join('\n')
   }
-
-  return {
-    text,
-    properties
-  }
 }
 
-function toFrontmatter (text, properties) {
-  return [
-    '---',
-    yaml.dump(properties, { skipInvalid: true, lineWidth: -1 }).trim(),
-    '---',
-    text
-  ].join('\n')
-}
-
-module.exports = {
-  fromFrontmatter,
-  toFrontmatter
-}
+module.exports = Frontmatter
