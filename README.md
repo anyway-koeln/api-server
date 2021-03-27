@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/anyway-koeln/api-server/actions/workflows/deploy-to-uberspace.yml/badge.svg)](https://github.com/anyway-koeln/api-server/actions/workflows/deploy-to-uberspace.yml)
 [![CodeQL](https://github.com/anyway-koeln/api-server/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/anyway-koeln/api-server/actions/workflows/codeql-analysis.yml)
+[![Test](https://github.com/anyway-koeln/api-server/actions/workflows/test.yml/badge.svg)](https://github.com/anyway-koeln/api-server/actions/workflows/test.yml)
 
 ## Start the Server
 Use `yarn start` to start the server.</br>
