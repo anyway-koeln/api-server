@@ -35,7 +35,7 @@ class OctokitHelper extends EventEmitter {
     })
   }
 
-  async pushFileToDataBranch(branchMetadata, fileContent, fileExtension, message = 'Some message…') {
+  async pushFileToDataBranch (branchMetadata, fileContent, fileExtension, message = 'Some message…') {
     return this.octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
       ...this.repoMetadata,
       path: `data/${branchMetadata.id}.${fileExtension || 'text'}`,
@@ -45,7 +45,7 @@ class OctokitHelper extends EventEmitter {
     })
   }
 
-  async createMergeRequest(branchMetadata, description = 'Some description…') {
+  async createMergeRequest (branchMetadata, description = 'Some description…') {
     return this.octokit.request('POST /repos/{owner}/{repo}/pulls', {
       ...this.repoMetadata,
       head: branchMetadata.name,
