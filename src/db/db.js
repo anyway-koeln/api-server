@@ -19,9 +19,7 @@ class DB extends EventEmitter {
   async initialize () {
     await this.client.connect()
     this.database = this.client.db('cache')
-    try {
-      await this.database.collection('incidents').drop()
-    } catch {}
+    await this.dropIncidents()
     this.incidents = this.database.collection('incidents')
     this.emit('ready')
   }
