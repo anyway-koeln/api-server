@@ -1,5 +1,4 @@
 const express = require('express')
-const cron = require('node-cron')
 const ApolloServer = require('apollo-server-express').ApolloServer
 
 const { getSecret } = require('./src/secretManager.js')
@@ -21,11 +20,7 @@ const octokitHelper = new OctokitHelper(getSecret('token'), getSecret('owner'), 
 const db = new DB()
 const incidentStorage = new IncidentStorage(db, octokitHelper, new Frontmatter())
 
-incidentStorage.loadData()
-
-cron.schedule('0 0 * * *', () => {
-  incidentStorage.refreshDB()
-})
+incidentStorage.loadInitialData()
 
 new ApolloServer({
   typeDefs,
