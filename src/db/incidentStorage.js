@@ -2,10 +2,11 @@ const path = require('path')
 const { v4: uuidv4 } = require('uuid')
 
 class IncidentStorage {
-  constructor (db, octokitHelper) {
+  constructor (db, octokitHelper, frontmatter) {
     this.db = db
     this.octokit = octokitHelper
     this.lastRefresh = new Date()
+    this.frontmatter = frontmatter
   }
 
   async loadData () {
@@ -33,18 +34,33 @@ class IncidentStorage {
     await this.db.ready
     const newEntry = {}
     newEntry.content = content
+    const { text, properties } = this.frontmatter.extract(content)
+    newEntry.properties = properties
+    newEntry.text = text
     newEntry.basename = path.basename(filePath, path.extname(filePath))
     newEntry.sha = sha
     this.db.incidents.insertOne(newEntry)
   }
 
-  async createIncidentPR (content, properties = {}) {
+  async createIncidentPR (text, properties = {}) {
+    text = text.trim()
+
+    const content = this.frontmatter.add(text, properties)
+
+    let preview = ''
+    if (text.length > 50) {
+      preview = text.slice(0, 49) + '…'
+    } else {
+      preview = text
+    }
+    
     await this.octokit.ready
     const newIncidentID = uuidv4()
     const branchName = `data-${newIncidentID}`
     await this.octokit.createNewDataBranch(branchName)
-    await this.octokit.pushFileToDataBranch({ name: branchName, id: newIncidentID }, content, 'md')
-    await this.octokit.createMergeRequest({ name: branchName, id: newIncidentID })
+    await this.octokit.pushFileToDataBranch({ name: branchName, id: newIncidentID }, content, 'md', preview)
+    await this.octokit.createMergeRequest({ name: branchName, id: newIncidentID }, preview)
+    
     return newIncidentID
   }
 

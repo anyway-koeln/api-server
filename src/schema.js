@@ -18,6 +18,8 @@ type Incident {
   sha: String
   basename: String
   content: String
+  properties: JSONObject
+  text: String
 }
 
 type Question {
