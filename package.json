@@ -37,6 +37,11 @@
     "js-yaml": "^4.0.0",
     "mongodb": "^3.6.4",
     "node-env-file": "^0.1.8",
+    "node-fetch": "^2.6.1",
+    "opencage-api-client": "^1.0.0",
+    "osm2geojson-lite": "^0.8.16",
+    "osmtogeojson": "^3.0.0-beta.4",
+    "simplify-geojson": "^1.0.4",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
