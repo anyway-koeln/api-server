@@ -12,7 +12,7 @@ const resolvers = require('./src/resolvers.js')
 const DB = require('./src/db/db')
 const IncidentStorage = require('./src/db/incidentStorage')
 const OctokitHelper = require('./src/git/ocotokitHelper')
-const Frontmatter = require('.src/db/frontmatter.js')
+const Frontmatter = require('./src/db/frontmatter.js')
 
 const app = express()
 app.use(express.json())
